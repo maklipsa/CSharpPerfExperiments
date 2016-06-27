@@ -1,0 +1,1 @@
+packages\NBench.Runner.0.3.0\lib\net45\NBench.Runner.exe bin\Debug\Tests.dll output-directory="C:\temp\Perf"

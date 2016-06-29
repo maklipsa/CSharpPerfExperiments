@@ -16,7 +16,7 @@ namespace Tests
         [PerfSetup]
         public void Setup(BenchmarkContext context)
         {
-            _list = GenerateObjects(100*1000*1000);
+            _list = GenerateObjects(20*1000*1000);
         }
 
         [PerfBenchmark(Description = "Gen 0 collection",NumberOfIterations = 1, RunMode = RunMode.Iterations,TestMode = TestMode.Test)]

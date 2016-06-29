@@ -50,6 +50,7 @@ namespace Tests
             testList = null;
             sw.Restart();
             GC.Collect(1);
+            GC.WaitForFullGCComplete();
             sw.Stop();
             Console.WriteLine("Gen 0+1 StopWatch time:" + sw.ElapsedTicks);
         }

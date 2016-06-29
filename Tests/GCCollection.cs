@@ -54,6 +54,30 @@ namespace Tests
             Console.WriteLine("Gen 0+1 StopWatch time:" + sw.ElapsedTicks);
         }
 
+        [PerfBenchmark(Description = "Gen 2 collection", NumberOfIterations = 1, RunMode = RunMode.Iterations, TestMode = TestMode.Test)]
+        [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen0, MustBe.ExactlyEqualTo, 3.0d)]
+        [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen1, MustBe.ExactlyEqualTo, 2.0d)]
+        [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 1.0d)]
+        public void Gen2Collection()
+        {
+            var testList = _list.ToList();
+            var sw = Stopwatch.StartNew();
+            GC.Collect(0);
+            GC.WaitForFullGCComplete();
+            Console.WriteLine("Gen0 StopWatch time:" + sw.ElapsedTicks);
+
+            sw.Restart();
+            GC.Collect(1);
+            GC.WaitForFullGCComplete();
+            Console.WriteLine("Gen1 StopWatch time:" + sw.ElapsedTicks);
+
+            testList = null;
+            sw.Restart();
+            GC.Collect(2);
+            GC.WaitForFullGCComplete();
+            Console.WriteLine("Gen 0+1+2 StopWatch time:" + sw.ElapsedTicks);
+        }
+
         private IList<string> GenerateObjects(long count)
         {
             var ret = new List<string>();

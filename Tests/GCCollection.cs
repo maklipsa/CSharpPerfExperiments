@@ -48,6 +48,7 @@ namespace Tests
             Console.WriteLine("Gen0 StopWatch time:" + sw.ElapsedTicks);
 
             testList = null;
+            sw.Restart();
             GC.Collect(1);
             sw.Stop();
             Console.WriteLine("Gen 0+1 StopWatch time:" + sw.ElapsedTicks);

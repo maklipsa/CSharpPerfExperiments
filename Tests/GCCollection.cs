@@ -32,7 +32,7 @@ namespace Tests
             GC.Collect(0);
             GC.WaitForFullGCComplete();
             sw.Stop();
-            Console.WriteLine("StopWatch time:"+sw.ElapsedMilliseconds);
+            Console.WriteLine("Gen0 StopWatch time:"+sw.ElapsedTicks);
         }
 
 
@@ -45,12 +45,12 @@ namespace Tests
             var testList = _list.ToList();
             var sw = Stopwatch.StartNew();
             GC.Collect(0);
-            Console.WriteLine("Gen0 StopWatch time:" + sw.ElapsedMilliseconds);
+            Console.WriteLine("Gen0 StopWatch time:" + sw.ElapsedTicks);
 
             testList = null;
             GC.Collect(1);
             sw.Stop();
-            Console.WriteLine("Gen 0+1 StopWatch time:" + sw.ElapsedMilliseconds);
+            Console.WriteLine("Gen 0+1 StopWatch time:" + sw.ElapsedTicks);
         }
 
         private IList<string> GenerateObjects(long count)

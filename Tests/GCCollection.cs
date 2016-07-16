@@ -15,14 +15,14 @@ namespace Tests
             "Gen 0+1+2 ticks:   "
         };
 
-        private List<MyGCTestClass> _list;
+        private readonly int _objectNumber = 20*1000;
 
         [PerfSetup]
         public void Setup(BenchmarkContext context)
         {
-            _list = GenerateObjects(20*1000*1000);
             Console.WriteLine("Objects generated.");
-            GC.Collect(2, GCCollectionMode.Forced, true,true);
+            GenerateObjects(_objectNumber*2);
+            GC.Collect(2, GCCollectionMode.Forced, true, true);
         }
 
         [PerfBenchmark(Description = "Gen 2 collection with nothing", NumberOfIterations = 1, RunMode = RunMode.Iterations, TestMode = TestMode.Test)]
@@ -31,7 +31,8 @@ namespace Tests
         [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 1d)]
         public void Gen2CollectionWithNothing()
         {
-            _list = null;
+            var list= GenerateObjects(_objectNumber);
+            list = null;
 
             var sw = Stopwatch.StartNew();
 
@@ -48,7 +49,8 @@ namespace Tests
         [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 0.0d)]
         public void Gen0Collection()
         {
-            _list = null;
+            var list = GenerateObjects(_objectNumber);
+            list = null;
 
             var sw = Stopwatch.StartNew();
 
@@ -62,10 +64,11 @@ namespace Tests
         [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 0.0d)]
         public void Gen1Collection()
         {
+            var list = GenerateObjects(_objectNumber);
             var sw = Stopwatch.StartNew();
             RunGCAndCheck(0, sw);/* Can't collect anything. Move it to gen 1.*/
 
-            _list = null;
+            list = null;
             RunGCAndCheck(1, sw);/* Run collect for gen 0 - it is empty. Run gen 1 collection - collect everything.*/
         }
 
@@ -75,13 +78,14 @@ namespace Tests
         [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 1.0d)]
         public void Gen2Collection()
         {
+            var list = GenerateObjects(_objectNumber);
             var sw = Stopwatch.StartNew();
 
             RunGCAndCheck(0, sw);/* Can't collect anything. Move it to gen 1.*/
 
             RunGCAndCheck(1, sw);/* Run collect for gen 0 - it is empty. Run gen 1 collection - collect the list elements.*/
 
-            _list = null;
+            list = null;
             RunGCAndCheck(2, sw);/* Run collect for generation 0 - it is empty. Run collect for generation 1 - it is empty. Run collect for generation 2 - collect everything.*/
         }
 

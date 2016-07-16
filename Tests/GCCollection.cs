@@ -2,26 +2,21 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Experiments;
+using Experiments.GarbageCollection;
 using NBench;
 
 namespace Tests
 {
     public class GCCollection
     {
-        private readonly string[] _messages =
-        {
-            "Gen 0 ticks:       ",
-            "Gen 0+1 ticks:     ",
-            "Gen 0+1+2 ticks:   "
-        };
-
         private readonly int _objectNumber = 20*1000;
-
+        //private Experiments.
         [PerfSetup]
         public void Setup(BenchmarkContext context)
         {
             Console.WriteLine("Objects generated.");
-            GenerateObjects(_objectNumber*2);
+            GCHelper.GenerateObjects(_objectNumber*2);
             GC.Collect(2, GCCollectionMode.Forced, true, true);
         }
 
@@ -31,16 +26,15 @@ namespace Tests
         [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 1d)]
         public void Gen2CollectionWithNothing()
         {
-            var list= GenerateObjects(_objectNumber);
-            list = null;
+            GC.Collect(2,GCCollectionMode.Forced,true,true);
 
             var sw = Stopwatch.StartNew();
 
-            RunGCAndCheck(0, sw);/* Run collect for gen 0 - collect everything.*/
+            GCHelper.RunGCAndCheck(0, sw);/* Run collect for gen 0 - collect everything.*/
 
-            RunGCAndCheck(1, sw);/* Nothing should be here.*/
+            GCHelper.RunGCAndCheck(1, sw);/* Nothing should be here.*/
 
-            RunGCAndCheck(2, sw);/* Nothing should be here.*/
+            GCHelper.RunGCAndCheck(2, sw);/* Nothing should be here.*/
         }
 
         [PerfBenchmark(Description = "Gen 0 collection", NumberOfIterations = 1, RunMode = RunMode.Iterations,TestMode = TestMode.Test)]
@@ -49,12 +43,12 @@ namespace Tests
         [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 0.0d)]
         public void Gen0Collection()
         {
-            var list = GenerateObjects(_objectNumber);
+            var list = GCHelper.GenerateObjects(_objectNumber);
             list = null;
 
             var sw = Stopwatch.StartNew();
 
-            RunGCAndCheck(0, sw);/* Run collect for gen 0 - collect everything.*/
+            GCHelper.RunGCAndCheck(0, sw);/* Run collect for gen 0 - collect everything.*/
         }
 
 
@@ -64,12 +58,12 @@ namespace Tests
         [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 0.0d)]
         public void Gen1Collection()
         {
-            var list = GenerateObjects(_objectNumber);
+            var list = GCHelper.GenerateObjects(_objectNumber);
             var sw = Stopwatch.StartNew();
-            RunGCAndCheck(0, sw);/* Can't collect anything. Move it to gen 1.*/
+            GCHelper.RunGCAndCheck(0, sw);/* Can't collect anything. Move it to gen 1.*/
 
             list = null;
-            RunGCAndCheck(1, sw);/* Run collect for gen 0 - it is empty. Run gen 1 collection - collect everything.*/
+            GCHelper.RunGCAndCheck(1, sw);/* Run collect for gen 0 - it is empty. Run gen 1 collection - collect everything.*/
         }
 
         [PerfBenchmark(Description = "Gen 2 collection", NumberOfIterations = 1, RunMode = RunMode.Iterations,TestMode = TestMode.Test)]
@@ -78,48 +72,15 @@ namespace Tests
         [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 1.0d)]
         public void Gen2Collection()
         {
-            var list = GenerateObjects(_objectNumber);
+            var list = GCHelper.GenerateObjects(_objectNumber);
             var sw = Stopwatch.StartNew();
 
-            RunGCAndCheck(0, sw);/* Can't collect anything. Move it to gen 1.*/
+            GCHelper.RunGCAndCheck(0, sw);/* Can't collect anything. Move it to gen 1.*/
 
-            RunGCAndCheck(1, sw);/* Run collect for gen 0 - it is empty. Run gen 1 collection - collect the list elements.*/
+            GCHelper.RunGCAndCheck(1, sw);/* Run collect for gen 0 - it is empty. Run gen 1 collection - collect the list elements.*/
 
             list = null;
-            RunGCAndCheck(2, sw);/* Run collect for generation 0 - it is empty. Run collect for generation 1 - it is empty. Run collect for generation 2 - collect everything.*/
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RunGCAndCheck(int generationNumber, Stopwatch sw)
-        {
-            sw.Restart();
-            GC.Collect(generationNumber, GCCollectionMode.Forced, true,true);
-            Console.WriteLine(_messages[generationNumber] + sw.ElapsedTicks);
-        }
-
-        private List<MyGCTestClass> GenerateObjects(long count)
-        {
-            var ret = new List<MyGCTestClass>();
-            for (var i = 0; i < count; i++)
-            {
-                ret.Add(new MyGCTestClass(Guid.NewGuid().ToString()));
-            }
-            return ret;
-        }
-
-        private class MyGCTestClass
-        {
-            private readonly string Text;
-
-            public MyGCTestClass(string text)
-            {
-                Text = text;
-            }
-
-            public MyGCTestClass(MyGCTestClass source)
-            {
-                Text = source.Text;
-            }
+            GCHelper.RunGCAndCheck(2, sw);/* Run collect for generation 0 - it is empty. Run collect for generation 1 - it is empty. Run collect for generation 2 - collect everything.*/
         }
     }
 }

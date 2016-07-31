@@ -13,7 +13,7 @@ namespace Experiments.GarbageCollection
             "Gen 0+1 ticks:     ",
             "Gen 0+1+2 ticks:   "
         };
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<MyGCTestClass> GenerateObjects(long count)
         {
             var ret = new List<MyGCTestClass>();

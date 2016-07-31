@@ -11,7 +11,7 @@ namespace Tests
     public class GCCollection
     {
         private readonly int _objectNumber = 20*1000;
-        //private Experiments.
+        
         [PerfSetup]
         public void Setup(BenchmarkContext context)
         {
@@ -21,9 +21,9 @@ namespace Tests
         }
 
         [PerfBenchmark(Description = "Gen 2 collection with nothing", NumberOfIterations = 1, RunMode = RunMode.Iterations, TestMode = TestMode.Test)]
-        [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen0, MustBe.ExactlyEqualTo, 3d)]
-        [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen1, MustBe.ExactlyEqualTo, 2d)]
-        [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 1d)]
+        [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen0, MustBe.ExactlyEqualTo, 4d)]
+        [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen1, MustBe.ExactlyEqualTo, 3d)]
+        [GcTotalAssertion(GcMetric.TotalCollections, GcGeneration.Gen2, MustBe.ExactlyEqualTo, 2d)]
         public void Gen2CollectionWithNothing()
         {
             GC.Collect(2,GCCollectionMode.Forced,true,true);
